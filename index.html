@@ -188,6 +188,7 @@
   <select id="productFilter"><option value="">All products</option></select>
   <select id="typeFilter"><option value="">Part &amp; Non-Part</option></select>
   <select id="partFilter"><option value="">All parts</option></select>
+  <select id="componentFilter"><option value="">All components</option></select>
   <span class="spacer"></span>
   <button class="btn" id="refreshBtn">↻ Refresh</button>
   <button class="btn primary" id="newIssueBtn">+ New Issue</button>
@@ -303,7 +304,7 @@ async function loadIssues(){
 }
 
 function populateFilters(){
-  const sf = $('#statusFilter'), pf = $('#priorityFilter'), prf = $('#productFilter'), tf = $('#typeFilter'), paf = $('#partFilter');
+  const sf = $('#statusFilter'), pf = $('#priorityFilter'), prf = $('#productFilter'), tf = $('#typeFilter'), paf = $('#partFilter'), cf = $('#componentFilter');
   if(sf.options.length<=1){
     STATUS_OPTIONS.forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; sf.appendChild(o); });
     PRIORITY_OPTIONS.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=p; pf.appendChild(o); });
@@ -318,6 +319,10 @@ function populateFilters(){
   const parts = [...new Set(ISSUES.map(i=>i.Part).filter(Boolean))].sort();
   paf.querySelectorAll('option:not(:first-child)').forEach(o=>o.remove());
   parts.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=p; paf.appendChild(o); });
+
+  const components = [...new Set(ISSUES.map(i=>i.Component).filter(Boolean))].sort();
+  cf.querySelectorAll('option:not(:first-child)').forEach(o=>o.remove());
+  components.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; cf.appendChild(o); });
 }
 
 function filtered(){
@@ -327,12 +332,14 @@ function filtered(){
   const pd = $('#productFilter').value;
   const ty = $('#typeFilter').value;
   const pt = $('#partFilter').value;
+  const cp = $('#componentFilter').value;
   return ISSUES.filter(i=>{
     if(st && i.Status !== st) return false;
     if(pr && i.Priority !== pr) return false;
     if(pd && i.Product !== pd) return false;
     if(ty && i.Type !== ty) return false;
     if(pt && i.Part !== pt) return false;
+    if(cp && i.Component !== cp) return false;
     if(q){
       const hay = [i.Product,i.Component,i.Part,i.PartDescription,i.RCA,i.Action].join(' ').toLowerCase();
       if(hay.indexOf(q) === -1) return false;
@@ -381,7 +388,7 @@ function render(){
   });
 }
 
-['searchInput','statusFilter','priorityFilter','productFilter','typeFilter','partFilter'].forEach(id=>{
+['searchInput','statusFilter','priorityFilter','productFilter','typeFilter','partFilter','componentFilter'].forEach(id=>{
   $('#'+id).addEventListener('input', render);
   $('#'+id).addEventListener('change', render);
 });
